@@ -39,6 +39,7 @@ const EmojiPicker = ({
   disableSkinTonePicker = false,
   groupNames = {},
   groupVisibility = {},
+  hideEmojis = [],
   ...props
 }) => {
   const onClickRef = useRef(onEmojiClick);
@@ -57,6 +58,7 @@ const EmojiPicker = ({
         disableSearchBar,
         disableAutoFocus,
         disableSkinTonePicker,
+        hideEmojis,
       }}
       recentlyUsed={getRecentlyUsed()}
       onEmojiClick={clickHandler(onClickRef)}

@@ -18,12 +18,14 @@ import useScrollUpOnFilterChange from '../../hooks/useScrollUpOnFilterChange';
 import globalObject from '../../lib/globalObject';
 import { groupNamesPropType } from '../../lib/propTypes';
 import setEmojiName from '../../lib/setEmojiName';
+import isUnicodeSupported from '../../lib/isUnicodeSupported';
 import {
   useActiveCategory,
   useActiveSkinTone,
   useConfig,
   useFilterResult,
   useFilterValue,
+  useHideEmojis,
   useMissingEmojis,
   useOnEmojiClick,
   useOpenVariationMenu,
@@ -31,6 +33,7 @@ import {
   useVariationMenuValue,
 } from '../../PickerContext';
 import Emoji from '../Emoji';
+import hiddenEmojis from '../../hiddenEmojis.json';
 
 import './style.css';
 
@@ -43,6 +46,7 @@ const createEmojiList = (name, { emojiListRef }) => {
   const onEmojiClick = useOnEmojiClick();
   const config = useConfig();
   const seenGroups = useSeenGroups();
+  const hideEmojis = useHideEmojis();
 
   const variationMenuOpenRef = useRef(!!variationMenu);
   const unsetEmojiName = useCallback(() => setEmojiName('', emojiListRef));
@@ -64,19 +68,28 @@ const createEmojiList = (name, { emojiListRef }) => {
       ? Object.keys(filterResult[name] || {})
       : emojiStorage.groups[name];
 
-    return listToUse.reduce(
+    const emojisNotReq = [...hiddenEmojis, hideEmojis];
+
+    const modifiedListToUse = listToUse.filter(
+      li => !emojisNotReq.includes(li)
+    );
+
+    return modifiedListToUse.reduce(
       (accumulator, emojiName, index) => {
         if (missingEmoji && missingEmoji[emojiName]) {
           return accumulator;
         }
 
         const emoji = emojiStorage.emojis[emojiName];
-        const hidden = !listToUse.length;
+        const hidden = !modifiedListToUse.length;
 
         if (!accumulator.shown && !hidden) {
           accumulator.shown = true;
         }
 
+        if (!isUnicodeSupported(emojiName)) {
+          return accumulator;
+        }
         accumulator.list.push(
           <Emoji
             emoji={emoji}
@@ -100,7 +113,14 @@ const createEmojiList = (name, { emojiListRef }) => {
       },
       { list: [], shown: false }
     );
-  }, [activeSkinTone, filterResult, shouldLoad, missingEmoji, config.native]);
+  }, [
+    activeSkinTone,
+    filterResult,
+    shouldLoad,
+    missingEmoji,
+    hideEmojis,
+    config.native,
+  ]);
 };
 
 const EmojiList = ({ emojiListRef }) => {

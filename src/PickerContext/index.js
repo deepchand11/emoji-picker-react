@@ -20,6 +20,7 @@ export function PickerContextProvider({
   const variationMenuState = useState(null);
   const skinToneSpreadState = useState(false);
   const activeSkinToneState = useState(config.skinTone);
+  const hideEmojisState = useState(config.hideEmojis);
 
   return (
     <PickerContext.Provider
@@ -35,6 +36,7 @@ export function PickerContextProvider({
         config,
         recentlyUsed,
         onEmojiClick,
+        hideEmojisState,
       }}
     >
       {children}
@@ -195,6 +197,12 @@ export function useRecentlyUsed() {
 
 export function useOnEmojiClick() {
   return useContext(PickerContext).onEmojiClick;
+}
+
+export function useHideEmojis() {
+  const [hideEmojisSpread] = useContext(PickerContext).hideEmojisState;
+
+  return hideEmojisSpread;
 }
 
 PickerContextProvider.propTypes = {

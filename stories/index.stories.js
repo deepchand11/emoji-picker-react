@@ -169,4 +169,15 @@ storiesOf('EmojiPicker', module)
         />
       </div>
     );
+  })
+  .add('Hide Emojis', () => {
+    return (
+      <div>
+        <EmojiPicker
+          onEmojiClick={(e, em) => log(em)}
+          emojiUrl={CDN_URL}
+          native={true}
+        />
+      </div>
+    );
   });
